@@ -1,0 +1,124 @@
+{
+  "version": "16.0.0",
+  "artifacts": {
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    },
+    "FargateOtelExampleStack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "FargateOtelExampleStack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "FargateOtelExampleStack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://180294194960/eu-central-1",
+      "properties": {
+        "templateFile": "FargateOtelExampleStack.template.json",
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::180294194960:role/cdk-hnb659fds-deploy-role-180294194960-eu-central-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::180294194960:role/cdk-hnb659fds-cfn-exec-role-180294194960-eu-central-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-180294194960-eu-central-1/bf91f4b44699753cb666e9cde170658234f2b5840d1fe1d8edf1bc160d04742f.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "FargateOtelExampleStack.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::180294194960:role/cdk-hnb659fds-lookup-role-180294194960-eu-central-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "FargateOtelExampleStack.assets"
+      ],
+      "metadata": {
+        "/FargateOtelExampleStack/ApiCluster/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApiCluster7CE9CBE6"
+          }
+        ],
+        "/FargateOtelExampleStack/ApiSvcSecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApiSvcSecurityGroup47394C1C"
+          }
+        ],
+        "/FargateOtelExampleStack/TaskExecutionRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskExecutionRole250D2532"
+          }
+        ],
+        "/FargateOtelExampleStack/TaskExecutionRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskExecutionRoleDefaultPolicyA84DD1B0"
+          }
+        ],
+        "/FargateOtelExampleStack/RoleSvc/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RoleSvc7BE393C9"
+          }
+        ],
+        "/FargateOtelExampleStack/RoleSvc/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RoleSvcDefaultPolicyA45E50DA"
+          }
+        ],
+        "/FargateOtelExampleStack/ApiSvcDefinition/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApiSvcDefinitionE9897CE6"
+          }
+        ],
+        "/FargateOtelExampleStack/ApiSvcDefinition/apiSvcTaskDefinition/LogGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApiSvcDefinitionapiSvcTaskDefinitionLogGroup53DE9E7D"
+          }
+        ],
+        "/FargateOtelExampleStack/ApiSvcDefinition/otelContainer/LogGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApiSvcDefinitionotelContainerLogGroup1F762A26"
+          }
+        ],
+        "/FargateOtelExampleStack/ApiService/Service": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApiServiceC9037CF0"
+          }
+        ],
+        "/FargateOtelExampleStack/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/FargateOtelExampleStack/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/FargateOtelExampleStack/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "FargateOtelExampleStack"
+    }
+  }
+}

@@ -1,0 +1,611 @@
+{
+  "version": "tree-0.1",
+  "tree": {
+    "id": "App",
+    "path": "",
+    "children": {
+      "Tree": {
+        "id": "Tree",
+        "path": "Tree",
+        "constructInfo": {
+          "fqn": "constructs.Construct",
+          "version": "10.4.2"
+        }
+      },
+      "FargateOtelExampleStack": {
+        "id": "FargateOtelExampleStack",
+        "path": "FargateOtelExampleStack",
+        "children": {
+          "DefaultVPC": {
+            "id": "DefaultVPC",
+            "path": "FargateOtelExampleStack/DefaultVPC",
+            "children": {
+              "PublicSubnet1": {
+                "id": "PublicSubnet1",
+                "path": "FargateOtelExampleStack/DefaultVPC/PublicSubnet1",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.17.0"
+                }
+              },
+              "PublicSubnet2": {
+                "id": "PublicSubnet2",
+                "path": "FargateOtelExampleStack/DefaultVPC/PublicSubnet2",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.17.0"
+                }
+              },
+              "PublicSubnet3": {
+                "id": "PublicSubnet3",
+                "path": "FargateOtelExampleStack/DefaultVPC/PublicSubnet3",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.17.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.Resource",
+              "version": "2.17.0"
+            }
+          },
+          "ApiCluster": {
+            "id": "ApiCluster",
+            "path": "FargateOtelExampleStack/ApiCluster",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "FargateOtelExampleStack/ApiCluster/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ECS::Cluster",
+                  "aws:cdk:cloudformation:props": {
+                    "clusterName": "otel-example-cluster"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.CfnCluster",
+                  "version": "2.17.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_ecs.Cluster",
+              "version": "2.17.0"
+            }
+          },
+          "ApiSvcSecurityGroup": {
+            "id": "ApiSvcSecurityGroup",
+            "path": "FargateOtelExampleStack/ApiSvcSecurityGroup",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "FargateOtelExampleStack/ApiSvcSecurityGroup/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
+                  "aws:cdk:cloudformation:props": {
+                    "groupDescription": "FargateOtelExampleStack/ApiSvcSecurityGroup",
+                    "groupName": "ExampleApiSecurityGroup",
+                    "securityGroupEgress": [
+                      {
+                        "cidrIp": "0.0.0.0/0",
+                        "description": "Allow all outbound traffic by default",
+                        "ipProtocol": "-1"
+                      }
+                    ],
+                    "vpcId": "vpc-04485e4e9c0e7710e"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroup",
+                  "version": "2.17.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+              "version": "2.17.0"
+            }
+          },
+          "TaskExecutionRole": {
+            "id": "TaskExecutionRole",
+            "path": "FargateOtelExampleStack/TaskExecutionRole",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "FargateOtelExampleStack/TaskExecutionRole/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                  "aws:cdk:cloudformation:props": {
+                    "assumeRolePolicyDocument": {
+                      "Statement": [
+                        {
+                          "Action": "sts:AssumeRole",
+                          "Effect": "Allow",
+                          "Principal": {
+                            "Service": "ecs-tasks.amazonaws.com"
+                          }
+                        }
+                      ],
+                      "Version": "2012-10-17"
+                    },
+                    "managedPolicyArns": [
+                      "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                  "version": "2.17.0"
+                }
+              },
+              "DefaultPolicy": {
+                "id": "DefaultPolicy",
+                "path": "FargateOtelExampleStack/TaskExecutionRole/DefaultPolicy",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "FargateOtelExampleStack/TaskExecutionRole/DefaultPolicy/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                      "aws:cdk:cloudformation:props": {
+                        "policyDocument": {
+                          "Statement": [
+                            {
+                              "Action": [
+                                "ecr-public:GetAuthorizationToken",
+                                "ecr-public:BatchCheckLayerAvailability",
+                                "ecr-public:GetRepositoryPolicy",
+                                "ecr-public:DescribeRepositories",
+                                "ecr-public:DescribeImages",
+                                "ecr-public:BatchGetImage",
+                                "ecr-public:GetImage",
+                                "sts:GetServiceBearerToken"
+                              ],
+                              "Effect": "Allow",
+                              "Resource": "*"
+                            },
+                            {
+                              "Action": [
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                              ],
+                              "Effect": "Allow",
+                              "Resource": {
+                                "Fn::GetAtt": [
+                                  "ApiSvcDefinitionapiSvcTaskDefinitionLogGroup53DE9E7D",
+                                  "Arn"
+                                ]
+                              }
+                            },
+                            {
+                              "Action": [
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                              ],
+                              "Effect": "Allow",
+                              "Resource": {
+                                "Fn::GetAtt": [
+                                  "ApiSvcDefinitionotelContainerLogGroup1F762A26",
+                                  "Arn"
+                                ]
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "policyName": "TaskExecutionRoleDefaultPolicyA84DD1B0",
+                        "roles": [
+                          {
+                            "Ref": "TaskExecutionRole250D2532"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                      "version": "2.17.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Policy",
+                  "version": "2.17.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_iam.Role",
+              "version": "2.17.0"
+            }
+          },
+          "RoleSvc": {
+            "id": "RoleSvc",
+            "path": "FargateOtelExampleStack/RoleSvc",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "FargateOtelExampleStack/RoleSvc/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                  "aws:cdk:cloudformation:props": {
+                    "assumeRolePolicyDocument": {
+                      "Statement": [
+                        {
+                          "Action": "sts:AssumeRole",
+                          "Effect": "Allow",
+                          "Principal": {
+                            "Service": "ecs-tasks.amazonaws.com"
+                          }
+                        }
+                      ],
+                      "Version": "2012-10-17"
+                    },
+                    "managedPolicyArns": [
+                      "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                  "version": "2.17.0"
+                }
+              },
+              "DefaultPolicy": {
+                "id": "DefaultPolicy",
+                "path": "FargateOtelExampleStack/RoleSvc/DefaultPolicy",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "FargateOtelExampleStack/RoleSvc/DefaultPolicy/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                      "aws:cdk:cloudformation:props": {
+                        "policyDocument": {
+                          "Statement": [
+                            {
+                              "Action": [
+                                "logs:PutLogEvents",
+                                "logs:CreateLogGroup",
+                                "logs:CreateLogStream",
+                                "logs:DescribeLogStreams",
+                                "logs:DescribeLogGroups",
+                                "xray:PutTraceSegments",
+                                "xray:PutTelemetryRecords",
+                                "xray:GetSamplingRules",
+                                "xray:GetSamplingTargets",
+                                "xray:GetSamplingStatisticSummaries",
+                                "ssm:GetParameters"
+                              ],
+                              "Effect": "Allow",
+                              "Resource": "*"
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "policyName": "RoleSvcDefaultPolicyA45E50DA",
+                        "roles": [
+                          {
+                            "Ref": "RoleSvc7BE393C9"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                      "version": "2.17.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Policy",
+                  "version": "2.17.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_iam.Role",
+              "version": "2.17.0"
+            }
+          },
+          "ApiSvcDefinition": {
+            "id": "ApiSvcDefinition",
+            "path": "FargateOtelExampleStack/ApiSvcDefinition",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "FargateOtelExampleStack/ApiSvcDefinition/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ECS::TaskDefinition",
+                  "aws:cdk:cloudformation:props": {
+                    "containerDefinitions": [
+                      {
+                        "essential": true,
+                        "image": "amazon/amazon-ecs-sample",
+                        "name": "apiSvcTaskDefinition",
+                        "portMappings": [
+                          {
+                            "containerPort": 80,
+                            "hostPort": 80,
+                            "protocol": "tcp"
+                          }
+                        ],
+                        "logConfiguration": {
+                          "logDriver": "awslogs",
+                          "options": {
+                            "awslogs-group": {
+                              "Ref": "ApiSvcDefinitionapiSvcTaskDefinitionLogGroup53DE9E7D"
+                            },
+                            "awslogs-stream-prefix": "/ecs/api-svc",
+                            "awslogs-region": "eu-central-1"
+                          }
+                        },
+                        "environment": [
+                          {
+                            "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                            "value": "http://localhost:4317"
+                          }
+                        ],
+                        "healthCheck": {
+                          "command": [
+                            "CMD-SHELL",
+                            "curl -f http://localhost/ || exit 1"
+                          ],
+                          "interval": 30,
+                          "retries": 3,
+                          "startPeriod": 60,
+                          "timeout": 5
+                        }
+                      },
+                      {
+                        "command": [
+                          "--config=/etc/ecs/container-insights/otel-task-metrics-config.yaml"
+                        ],
+                        "dependsOn": [
+                          {
+                            "containerName": "apiSvcTaskDefinition",
+                            "condition": "HEALTHY"
+                          }
+                        ],
+                        "essential": true,
+                        "image": "public.ecr.aws/aws-observability/aws-otel-collector:v0.33.1",
+                        "name": "otelContainer",
+                        "portMappings": [
+                          {
+                            "containerPort": 4317,
+                            "hostPort": 4317,
+                            "protocol": "tcp"
+                          },
+                          {
+                            "containerPort": 4318,
+                            "hostPort": 4318,
+                            "protocol": "tcp"
+                          },
+                          {
+                            "containerPort": 2000,
+                            "hostPort": 2000,
+                            "protocol": "udp"
+                          },
+                          {
+                            "containerPort": 13133,
+                            "hostPort": 13133,
+                            "protocol": "tcp"
+                          }
+                        ],
+                        "logConfiguration": {
+                          "logDriver": "awslogs",
+                          "options": {
+                            "awslogs-group": {
+                              "Ref": "ApiSvcDefinitionotelContainerLogGroup1F762A26"
+                            },
+                            "awslogs-stream-prefix": "/ecs/otel-sidecar-collector",
+                            "awslogs-region": "eu-central-1"
+                          }
+                        },
+                        "healthCheck": {
+                          "command": [
+                            "CMD-SHELL",
+                            "curl -f http://localhost:13133/ || exit 1"
+                          ],
+                          "interval": 30,
+                          "retries": 3,
+                          "startPeriod": 60,
+                          "timeout": 5
+                        }
+                      }
+                    ],
+                    "cpu": "512",
+                    "executionRoleArn": {
+                      "Fn::GetAtt": [
+                        "TaskExecutionRole250D2532",
+                        "Arn"
+                      ]
+                    },
+                    "family": "FargateOtelExampleStackApiSvcDefinitionE10D3B7C",
+                    "memory": "1024",
+                    "networkMode": "awsvpc",
+                    "requiresCompatibilities": [
+                      "FARGATE"
+                    ],
+                    "taskRoleArn": {
+                      "Fn::GetAtt": [
+                        "RoleSvc7BE393C9",
+                        "Arn"
+                      ]
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.CfnTaskDefinition",
+                  "version": "2.17.0"
+                }
+              },
+              "apiSvcTaskDefinition": {
+                "id": "apiSvcTaskDefinition",
+                "path": "FargateOtelExampleStack/ApiSvcDefinition/apiSvcTaskDefinition",
+                "children": {
+                  "LogGroup": {
+                    "id": "LogGroup",
+                    "path": "FargateOtelExampleStack/ApiSvcDefinition/apiSvcTaskDefinition/LogGroup",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "FargateOtelExampleStack/ApiSvcDefinition/apiSvcTaskDefinition/LogGroup/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
+                          "aws:cdk:cloudformation:props": {
+                            "retentionInDays": 7
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
+                          "version": "2.17.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.LogGroup",
+                      "version": "2.17.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.ContainerDefinition",
+                  "version": "2.17.0"
+                }
+              },
+              "otelContainer": {
+                "id": "otelContainer",
+                "path": "FargateOtelExampleStack/ApiSvcDefinition/otelContainer",
+                "children": {
+                  "LogGroup": {
+                    "id": "LogGroup",
+                    "path": "FargateOtelExampleStack/ApiSvcDefinition/otelContainer/LogGroup",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "FargateOtelExampleStack/ApiSvcDefinition/otelContainer/LogGroup/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
+                          "aws:cdk:cloudformation:props": {
+                            "retentionInDays": 7
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
+                          "version": "2.17.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.LogGroup",
+                      "version": "2.17.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.ContainerDefinition",
+                  "version": "2.17.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_ecs.TaskDefinition",
+              "version": "2.17.0"
+            }
+          },
+          "ApiService": {
+            "id": "ApiService",
+            "path": "FargateOtelExampleStack/ApiService",
+            "children": {
+              "Service": {
+                "id": "Service",
+                "path": "FargateOtelExampleStack/ApiService/Service",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ECS::Service",
+                  "aws:cdk:cloudformation:props": {
+                    "capacityProviderStrategy": [
+                      {
+                        "capacityProvider": "FARGATE_SPOT",
+                        "weight": 2
+                      },
+                      {
+                        "capacityProvider": "FARGATE",
+                        "weight": 1,
+                        "base": 1
+                      }
+                    ],
+                    "cluster": {
+                      "Ref": "ApiCluster7CE9CBE6"
+                    },
+                    "deploymentConfiguration": {
+                      "maximumPercent": 200,
+                      "minimumHealthyPercent": 100
+                    },
+                    "enableEcsManagedTags": true,
+                    "networkConfiguration": {
+                      "awsvpcConfiguration": {
+                        "assignPublicIp": "ENABLED",
+                        "subnets": [
+                          "subnet-044f57f6ffcb33aa1",
+                          "subnet-0a9a6c85daec320b1",
+                          "subnet-03f12303a8c2eb5b6"
+                        ],
+                        "securityGroups": [
+                          {
+                            "Fn::GetAtt": [
+                              "ApiSvcSecurityGroup47394C1C",
+                              "GroupId"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "serviceName": "ExampleService",
+                    "taskDefinition": {
+                      "Ref": "ApiSvcDefinitionE9897CE6"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.CfnService",
+                  "version": "2.17.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_ecs.FargateService",
+              "version": "2.17.0"
+            }
+          },
+          "CDKMetadata": {
+            "id": "CDKMetadata",
+            "path": "FargateOtelExampleStack/CDKMetadata",
+            "children": {
+              "Default": {
+                "id": "Default",
+                "path": "FargateOtelExampleStack/CDKMetadata/Default",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnResource",
+                  "version": "2.17.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.4.2"
+            }
+          }
+        },
+        "constructInfo": {
+          "fqn": "aws-cdk-lib.Stack",
+          "version": "2.17.0"
+        }
+      }
+    },
+    "constructInfo": {
+      "fqn": "aws-cdk-lib.App",
+      "version": "2.17.0"
+    }
+  }
+}

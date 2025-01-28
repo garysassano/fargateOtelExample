@@ -1,0 +1,409 @@
+{
+  "Resources": {
+    "ApiCluster7CE9CBE6": {
+      "Type": "AWS::ECS::Cluster",
+      "Properties": {
+        "ClusterName": "otel-example-cluster"
+      },
+      "Metadata": {
+        "aws:cdk:path": "FargateOtelExampleStack/ApiCluster/Resource"
+      }
+    },
+    "ApiSvcSecurityGroup47394C1C": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "FargateOtelExampleStack/ApiSvcSecurityGroup",
+        "GroupName": "ExampleApiSecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1"
+          }
+        ],
+        "VpcId": "vpc-04485e4e9c0e7710e"
+      },
+      "Metadata": {
+        "aws:cdk:path": "FargateOtelExampleStack/ApiSvcSecurityGroup/Resource"
+      }
+    },
+    "TaskExecutionRole250D2532": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "FargateOtelExampleStack/TaskExecutionRole/Resource"
+      }
+    },
+    "TaskExecutionRoleDefaultPolicyA84DD1B0": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "ecr-public:GetAuthorizationToken",
+                "ecr-public:BatchCheckLayerAvailability",
+                "ecr-public:GetRepositoryPolicy",
+                "ecr-public:DescribeRepositories",
+                "ecr-public:DescribeImages",
+                "ecr-public:BatchGetImage",
+                "ecr-public:GetImage",
+                "sts:GetServiceBearerToken"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "ApiSvcDefinitionapiSvcTaskDefinitionLogGroup53DE9E7D",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "ApiSvcDefinitionotelContainerLogGroup1F762A26",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "TaskExecutionRoleDefaultPolicyA84DD1B0",
+        "Roles": [
+          {
+            "Ref": "TaskExecutionRole250D2532"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "FargateOtelExampleStack/TaskExecutionRole/DefaultPolicy/Resource"
+      }
+    },
+    "RoleSvc7BE393C9": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "FargateOtelExampleStack/RoleSvc/Resource"
+      }
+    },
+    "RoleSvcDefaultPolicyA45E50DA": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:PutLogEvents",
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:DescribeLogStreams",
+                "logs:DescribeLogGroups",
+                "xray:PutTraceSegments",
+                "xray:PutTelemetryRecords",
+                "xray:GetSamplingRules",
+                "xray:GetSamplingTargets",
+                "xray:GetSamplingStatisticSummaries",
+                "ssm:GetParameters"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "RoleSvcDefaultPolicyA45E50DA",
+        "Roles": [
+          {
+            "Ref": "RoleSvc7BE393C9"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "FargateOtelExampleStack/RoleSvc/DefaultPolicy/Resource"
+      }
+    },
+    "ApiSvcDefinitionE9897CE6": {
+      "Type": "AWS::ECS::TaskDefinition",
+      "Properties": {
+        "ContainerDefinitions": [
+          {
+            "Environment": [
+              {
+                "Name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                "Value": "http://localhost:4317"
+              }
+            ],
+            "Essential": true,
+            "HealthCheck": {
+              "Command": [
+                "CMD-SHELL",
+                "curl -f http://localhost/ || exit 1"
+              ],
+              "Interval": 30,
+              "Retries": 3,
+              "StartPeriod": 60,
+              "Timeout": 5
+            },
+            "Image": "amazon/amazon-ecs-sample",
+            "LogConfiguration": {
+              "LogDriver": "awslogs",
+              "Options": {
+                "awslogs-group": {
+                  "Ref": "ApiSvcDefinitionapiSvcTaskDefinitionLogGroup53DE9E7D"
+                },
+                "awslogs-stream-prefix": "/ecs/api-svc",
+                "awslogs-region": "eu-central-1"
+              }
+            },
+            "Name": "apiSvcTaskDefinition",
+            "PortMappings": [
+              {
+                "ContainerPort": 80,
+                "HostPort": 80,
+                "Protocol": "tcp"
+              }
+            ]
+          },
+          {
+            "Command": [
+              "--config=/etc/ecs/container-insights/otel-task-metrics-config.yaml"
+            ],
+            "DependsOn": [
+              {
+                "Condition": "HEALTHY",
+                "ContainerName": "apiSvcTaskDefinition"
+              }
+            ],
+            "Essential": true,
+            "HealthCheck": {
+              "Command": [
+                "CMD-SHELL",
+                "curl -f http://localhost:13133/ || exit 1"
+              ],
+              "Interval": 30,
+              "Retries": 3,
+              "StartPeriod": 60,
+              "Timeout": 5
+            },
+            "Image": "public.ecr.aws/aws-observability/aws-otel-collector:v0.33.1",
+            "LogConfiguration": {
+              "LogDriver": "awslogs",
+              "Options": {
+                "awslogs-group": {
+                  "Ref": "ApiSvcDefinitionotelContainerLogGroup1F762A26"
+                },
+                "awslogs-stream-prefix": "/ecs/otel-sidecar-collector",
+                "awslogs-region": "eu-central-1"
+              }
+            },
+            "Name": "otelContainer",
+            "PortMappings": [
+              {
+                "ContainerPort": 4317,
+                "HostPort": 4317,
+                "Protocol": "tcp"
+              },
+              {
+                "ContainerPort": 4318,
+                "HostPort": 4318,
+                "Protocol": "tcp"
+              },
+              {
+                "ContainerPort": 2000,
+                "HostPort": 2000,
+                "Protocol": "udp"
+              },
+              {
+                "ContainerPort": 13133,
+                "HostPort": 13133,
+                "Protocol": "tcp"
+              }
+            ]
+          }
+        ],
+        "Cpu": "512",
+        "ExecutionRoleArn": {
+          "Fn::GetAtt": [
+            "TaskExecutionRole250D2532",
+            "Arn"
+          ]
+        },
+        "Family": "FargateOtelExampleStackApiSvcDefinitionE10D3B7C",
+        "Memory": "1024",
+        "NetworkMode": "awsvpc",
+        "RequiresCompatibilities": [
+          "FARGATE"
+        ],
+        "TaskRoleArn": {
+          "Fn::GetAtt": [
+            "RoleSvc7BE393C9",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "FargateOtelExampleStack/ApiSvcDefinition/Resource"
+      }
+    },
+    "ApiSvcDefinitionapiSvcTaskDefinitionLogGroup53DE9E7D": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "RetentionInDays": 7
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "FargateOtelExampleStack/ApiSvcDefinition/apiSvcTaskDefinition/LogGroup/Resource"
+      }
+    },
+    "ApiSvcDefinitionotelContainerLogGroup1F762A26": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "RetentionInDays": 7
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "FargateOtelExampleStack/ApiSvcDefinition/otelContainer/LogGroup/Resource"
+      }
+    },
+    "ApiServiceC9037CF0": {
+      "Type": "AWS::ECS::Service",
+      "Properties": {
+        "CapacityProviderStrategy": [
+          {
+            "CapacityProvider": "FARGATE_SPOT",
+            "Weight": 2
+          },
+          {
+            "Base": 1,
+            "CapacityProvider": "FARGATE",
+            "Weight": 1
+          }
+        ],
+        "Cluster": {
+          "Ref": "ApiCluster7CE9CBE6"
+        },
+        "DeploymentConfiguration": {
+          "MaximumPercent": 200,
+          "MinimumHealthyPercent": 100
+        },
+        "EnableECSManagedTags": true,
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "AssignPublicIp": "ENABLED",
+            "SecurityGroups": [
+              {
+                "Fn::GetAtt": [
+                  "ApiSvcSecurityGroup47394C1C",
+                  "GroupId"
+                ]
+              }
+            ],
+            "Subnets": [
+              "subnet-044f57f6ffcb33aa1",
+              "subnet-0a9a6c85daec320b1",
+              "subnet-03f12303a8c2eb5b6"
+            ]
+          }
+        },
+        "ServiceName": "ExampleService",
+        "TaskDefinition": {
+          "Ref": "ApiSvcDefinitionE9897CE6"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "FargateOtelExampleStack/ApiService/Service"
+      }
+    },
+    "CDKMetadata": {
+      "Type": "AWS::CDK::Metadata",
+      "Properties": {
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/12PwQrCMBBEv8V7utp68AMUvXiQ1rvEuJa1MSvZRJGQf5e2KuJp3s4wC1NBuYDZRD+kMKeusHSE1ARtOlWjcPQGlX7IIaERSEsbJaBXy7P74F5Lt8IzOQrErk/+HXZBk0P/4621b3XABv2dDPalN2aFpoLUoImewnPjOd7G+MfIivQVUs12qA66Y0vm2Z8jZWW5FUhbbr9PPpzzUHvPy8rxCeEi03tVQTmHcnIRosJHF+iKUI/6AuePlMwoAQAA"
+      },
+      "Metadata": {
+        "aws:cdk:path": "FargateOtelExampleStack/CDKMetadata/Default"
+      }
+    }
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Type": "AWS::SSM::Parameter::Value<String>",
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+    }
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5"
+                  ],
+                  {
+                    "Ref": "BootstrapVersion"
+                  }
+                ]
+              }
+            ]
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+        }
+      ]
+    }
+  }
+}

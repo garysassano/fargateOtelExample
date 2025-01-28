@@ -1,0 +1,20 @@
+{
+  "version": "16.0.0",
+  "files": {
+    "bf91f4b44699753cb666e9cde170658234f2b5840d1fe1d8edf1bc160d04742f": {
+      "source": {
+        "path": "FargateOtelExampleStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "180294194960-eu-central-1": {
+          "bucketName": "cdk-hnb659fds-assets-180294194960-eu-central-1",
+          "objectKey": "bf91f4b44699753cb666e9cde170658234f2b5840d1fe1d8edf1bc160d04742f.json",
+          "region": "eu-central-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::180294194960:role/cdk-hnb659fds-file-publishing-role-180294194960-eu-central-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}
